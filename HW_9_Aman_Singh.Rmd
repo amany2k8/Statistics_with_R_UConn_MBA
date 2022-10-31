@@ -1,0 +1,352 @@
+---
+title: "Homework_Stats_9"
+output:
+  html_document:
+    df_print: paged
+    theme: united
+    toc: yes
+  html_notebook: default
+  word_document:
+    toc: yes
+  pdf_document: default
+name: Aman Singh
+---
+#Problem 1
+
+One concern in Major League Baseball is that the time to play games has become too long. There
+have been recent efforts to enforce rules that will speed up the game. In the data set Baseball
+Games we have data reporting a set of games that were played on a given day, where the columns,
+in order, report the game index, the teams playing the game, the league (either AL or NL), the
+margin of victory, the number of pitchers, the attendance at the game, and the amount of time that
+the game took, in minutes. We will conduct a statistical test to determine if the average length of
+games is less than 213 minutes at the 99% confidence level.
+a. State the null hypothesis.
+b. State the alternative hypothesis.
+c. Can we use a parametric test? Explain in detail.
+d. Independent from the answer given in the previous part, run a parametric statistical test. What is the p-value for the statistical test? Show all steps.
+e. At a confidence level of 99%, would you reject or fail to reject the null hypothesis?
+f. If you conducted a t-test, use the wBoot package to conduct the same hypothesis test. If
+you conducted a bootstrap test using wBoot, do a t-test. Compare the results. How do they
+differ?
+g. The League is mostly concerned that at least 80% of games will conclude within 4 hours.
+They would like to make the statement ‘80% of our games conclude within 4 hours.’ Based
+on this data set, conduct a hypothesis test to evaluate if this claim is true at 90% and 98%
+confidence.
+
+```{r}
+Baseball_1<- read.csv("C:/Users/amany/Downloads/Baseball_Games.csv")
+View(Baseball_1)
+```
+
+```{r}
+install.packages("wBoot")
+```
+
+```{r}
+hist(Baseball_1$Time)
+```
+
+
+
+
+```{r}
+shapiro.test(Baseball_1$Time)
+```
+
+```{r}
+qqnorm(Baseball_1$Time)
+```
+
+
+We notice that the Q-Q Plot is not nearly linear and thus we can't claim that the sample is normally ditributed.
+
+##Problem_1.a
+
+The null hypothesis, H0, always refers to a specified value of the population parameter
+(such as µ), not a sample statistic(x_bar)
+the null hypothesis (in words) to evaluate this claim:
+the average length of games is more than or equal to 213 minutes at the 99% confidence level.
+
+Ho: µ>= 213
+
+##Problem_1.b
+
+The alternative hypothesis represents the conclusion reached by rejecting the null hypothesis. The null hypothesis is rejected when there is sufficient evidence from the sample data that the null hypothesis is false.
+
+the alternative hypothesis (in words) to evaluate this claim:
+the average length of games is less than 213 minutes at the 99% confidence level.
+
+H1: µ< 213
+
+##Problem_1.c
+
+No!
+After analysing the Q-Q plot and Shapiro test, we come to the conclusion that the sample is not normal and thus we can't apply paramatric tests and will use bootstrapping.
+
+
+##Problem_1.d
+
+
+```{r}
+x_bar2<-mean(Baseball_1$Time)
+sd_g1<-sd(Baseball_1$Time)
+Ttest1 <- t.test(Baseball_1$Time, alternative = "less", mu = 213, conf.level =0.99)
+Ttest1
+tstat2<-(x_bar2-213)/(sd_g1/sqrt(15))
+tstat2
+p_value_t1<-pt(tstat2,df=14)
+p_value_t1
+```
+
+p-value comes out to be 0.01173
+
+##Problem_1.e
+
+A p-value (observed significance level) is the probability of obtaining a test statistic value equal to or more extreme than that obtained from the sample data when the null hypothesis is true.
+An alternative approach to the acceptance region approach
+Reject H0 if the p-value < 𝛼
+For a lower one-tailed test, the p-value is the probability to the left of the test statistic t in the t-distribution or standard normal distribution, and is found using the R commands:
+pt(t,df=n-1) or pnorm(t) as it is a lower-t tailed test.
+
+Here, 
+Reject H0 if the p-value < 𝛼
+or, p-value=0.0117 which is more than 0.01.
+thus, we fail to reject Ho.
+
+##Problem_1.f
+
+```{r}
+set.seed(100)
+library(wBoot)
+boot1<-boot.one.per(Baseball_1$Time,mean, null.hyp = 213, alternative = "less", conf.level = 0.99, R=9999)
+boot1
+```
+
+It replicates the bootstrap 9999 and after setting the seed to 100 I keep getting 0.012, which is larger than alpha=0.01. Thus, we fail to reject the null hypothesis.
+However, if we remove the set.seed function the p-value oscillates about 0.010 and we can't say for sure if it is going to be always less than alpha at 99% confidence level.
+
+##Problem_1.g
+
+
+the null hypothesis (in words) to evaluate this claim:
+80% of our games don't conclude within 240 minutes.
+
+Ho: µ>= 240
+
+the alternative hypothesis (in words) to evaluate this claim:
+80% of our games conclude within 240 minutes.
+
+H1: µ< 240
+
+```{r}
+set.seed(100)
+library(wBoot)
+eightiethpercentiletime<-quantile(c(Baseball_1$Time), probs = 0.8)
+sampling_dist1 <- replicate(1000,quantile(sample(Baseball_1$Time,size=length(Baseball_1$Time),replace=TRUE),probs = 0.8))
+hist(sampling_dist1)
+diff <- (sampling_dist1) - eightiethpercentiletime
+diff_10<- quantile(diff,prob=0.1)
+eightiethpercentiletime+diff_10
+diff_2<-quantile(diff,prob=0.02)
+eightiethpercentiletime+diff_2
+t.test(sampling_dist1, mu = 240 , alternative = "less", conf.level = 0.90)
+t.test(sampling_dist1, mu = 240 , alternative = "less", conf.level = 0.98)
+boot.one.per(sampling_dist1,mean,null.hyp = 240,alternative = "less",type=NULL,R=9999,conf.level = 0.90)
+boot.one.per(sampling_dist1,mean,null.hyp = 240,alternative = "less",type=NULL,R=9999,conf.level = 0.98)
+```
+
+The p-value is very low in both the tests, so we can reject the null hypothesis that 80% of our games don't conclude within 240 minutes.
+
+#Problem_2
+
+Two managers at a global finance firm are competing for a promotion. The CEO has asked each to
+record the time it took their respective teams to complete the projects assigned to them over the
+last week. File ProjectCompletionTimes.xlsx reports the results for both managers.
+a. Is there statistical evidence to conclude that the mean completion times for projects for the
+teams of each of the managers is different?
+b. Is there statistical evidence to conclude that the median completion times for projects for the
+teams of each of the managers is different?
+c. Is there statistical evidence to conclude that the ratio of the variance of the completion times
+for projects for the teams of each of the employees is different?
+
+
+```{r}
+Project_1<- read.csv("C:/Users/amany/Downloads/ProjectCompletionTimes.csv")
+View(Project_1)
+```
+
+
+```{r}
+hist(Project_1$Team1CompletionTime)
+hist(Project_1$Team2CompletionTime)
+
+```
+
+```{r}
+shapiro.test(Project_1$Team1CompletionTime)
+```
+From the output, the p-value > 0.05 implying that the distribution of the data are not significantly different from normal distribution. 
+```{r}
+shapiro.test(Project_1$Team2CompletionTime)
+```
+
+From the output, the p-value > 0.05 implying that the distribution of the data are not significantly different from normal distribution.
+
+```{r}
+qqnorm(Project_1$Team1CompletionTime)
+```
+
+```{r}
+qqnorm(Project_1$Team2CompletionTime)
+```
+From, the Q-Q plot we notice that the distribution in both the cases are following a 45degree inlcined straight line.
+Thus, we cannot reject null hypothesis that the distribution is normal, meaning the data may be normally distributed, due to the high P-value from the Shapiro test and visual confirmation in the qqnorm plot.
+
+##Problem_2a
+
+H0: the two variables have the same means
+H1: the two variables have different means
+
+
+
+```{r}
+set.seed(100)
+library(wBoot)
+t.test(Project_1$Team1CompletionTime,Project_1$Team2CompletionTime,paired=FALSE)
+
+boot.two.per(na.omit(Project_1$Team1CompletionTime),na.omit(Project_1$Team2CompletionTime),mean, null.hyp = 0,conf.level = 0.95, R = 9999)
+
+```
+
+P-Value is greater than alpha= 0.05, thus we fail to reject the null hypothesis.
+
+##Problem_2b
+H0: the two variables have the same medians
+H1: the two variables have different medians
+
+```{r}
+set.seed(100)
+boot.two.per(Project_1$Team1CompletionTime,Project_1$Team2CompletionTime,median, null.hyp = 0, conf.level = 0.95, R = 9999)
+```
+Since, the data is normally distributed after bootstrapping we can safely say that mean=median.
+The p-value is coming out to be larger than alpha=0.05
+
+##Problem_2c
+
+F-test is very sensitive to departure from the normal assumption. You need to check whether the data is normally distributed before using the F-test.
+Shapiro-Wilk test can be used to test whether the normal assumption holds. It’s also possible to use Q-Q plot (quantile-quantile plot) to graphically evaluate the normality of a variable. Q-Q plot draws the correlation between a given sample and the normal distribution.
+If there is doubt about normality, the better choice is to use Levene’s test or Fligner-Killeen test, which are less sensitive to departure from normal assumption.
+
+```{r}
+var(Project_1$Team1CompletionTime)
+```
+
+
+```{r}
+var(na.omit(Project_1$Team1CompletionTime))
+var(na.omit(Project_1$Team2CompletionTime))
+```
+
+```{r}
+var.test(na.omit(Project_1$Team1CompletionTime),na.omit(Project_1$Team2CompletionTime))
+```
+
+There is not enough statistical evidence to conclude at 95% interval.
+
+
+##Problem_3
+
+I want you to run a statistical test for the difference between the means of some population parameters that you are most interested in! For example, suppose you are interested in daily fantasy
+sports, and you want to know if quarterbacks of the visiting teams have on average more fantasy
+points that quarterbacks on home teams. You should download real data and make a statistical
+test!
+Be creative! Are you interested in cooking? Are you interested in sports? Are you interested in
+the stock market and in investing? Find an interesting question to ask from data that you can
+access. You will be graded on the precision of the question you are seeking to find an answer to,
+the validity of the hypotheses, and the correctness of the statistical test you employ
+
+The main assumption is that each sample statistic is normally distributed
+
+
+
+```{r}
+Data_1<- read.csv("C:/Users/amany/Downloads/Data_1.csv")
+View(Data_1)
+```
+
+```{r}
+shapiro.test(Data_1$Amazon)
+shapiro.test(Data_1$Google)
+
+```
+
+```{r}
+qqnorm(Data_1$Amazon)
+qqnorm(Data_1$Google)
+
+```
+
+As the p-value is very low, reject null hypothesis that the distribution is normal.This means that using the parametric t-test is not reliable!  
+
+I am also interested in knowing if there is a correlation in Amazon & Google returns .
+My null hypotheis 
+Ho : No correlation in average daily stock return of Amazon and Google in last 1 year at 95% cf level. 
+My alternative hypothesis
+H1 : correlation in average daily stock return of Amazon and Google in last 1 year at 95% cf level.
+
+```{r}
+library(wBoot)
+boot.cor.per(na.omit(Data_1$Amazon),na.omit(Data_1$Google),null.hyp =0, conf.level = 0.95, type = NULL, R = 9999)
+
+```
+
+As the p-value is high, we fail to reject the null hypothesis.
+
+
+
+Or
+
+##Problem_3
+
+I and some friends have decided to test the validity of an advertisement by a local pizza
+restaurant, which says it delivers to the dormitories faster than a local branch of a national
+chain. Both the local pizza restaurant and national chain are located across the street from
+our college campus. I define the variable of interest as the delivery time, in minutes, from
+the time the pizza is ordered to when it is delivered. I collect the data by ordering 10 pizzas
+from the local pizza restaurant and 10 pizzas from the national chain at different times. I
+organize and store the data in PizzaTime. 
+
+```{r}
+Data_2<- read.csv("C:/Users/amany/Downloads/Pizza_Time.csv")
+View(Data_2)
+```
+
+At the 0.05 level of significance, is there evidence that the mean delivery time for the local
+pizza restaurant is less than the mean delivery time for the national pizza chain?
+
+
+
+```{r}
+shapiro.test(Data_2$Local)
+shapiro.test(Data_2$Chain)
+
+```
+
+
+```{r}
+qqnorm(Data_2$Local)
+qqnorm(Data_2$Chain)
+
+```
+
+As the p-value is very high, we fail to reject null hypothesis that the distribution is normal.This means that using the parametric t-test is reliable!  
+
+Because I want to know whether the mean is lower for the local pizza restaurant than for the national pizza chain, I have a one-tail test with the following null and alternative hypotheses:
+H0: The mean delivery time for the local pizza restaurant is equal to or greater than the mean delivery time for the national pizza chain.
+H1: The mean delivery time for the local pizza restaurant is less than the mean delivery time for the national pizza chain.
+
+```{r}
+t.test(Data_2$Local, Data_2$Chain, alternative = "less", paired = FALSE, conf.level = 0.95)
+```
+
+Because the p-value is greater than a = 0.05, there is insufficient evidence to reject the null hypothesis. Based on these results, there is insufficient evidence for the local pizza restaurant to make the advertising claim that it has a faster delivery time.

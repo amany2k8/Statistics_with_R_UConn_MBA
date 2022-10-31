@@ -1,0 +1,190 @@
+---
+title: "Homework_Stats_5"
+output:
+  html_document:
+    df_print: paged
+    theme: united
+    toc: yes
+  html_notebook: default
+  word_document:
+    toc: yes
+  pdf_document: default
+name: Aman Singh
+---
+# 1. Computers crash due to errors in the programs written by coders, and developers ﬁx these issues, with each ﬁx requiring a random amount of time. For each subquestion, please set the seed to 100. If you can answer the question without simulation, please do so. If you cannot answer the question without simulation, please use 1000 simulations.
+
+## a. Suppose that computer crashes occur at a rate of 1 every two hours. What is the probability that more than 4 crashes occur in an eight-hour working period?
+
+In 8 hour working period, we have 4 crashes.Modeling the crashes as poisson distribution by taking lambda =4
+
+
+```{r}
+set.seed(100)
+```
+
+Let N be the number of crashes of a computer in an eight-hour working period.  We will model N as a Poisson random variable. The one parameter, lambda, is estimated as 4.
+
+The question asks for P(X > 4) = 1 - P(X <= 4)
+
+```{r}
+prob_1a <- 1 - ppois(4,4)
+prob_1a
+```
+
+
+## b. Every time a computer crashes, it is observed that at least one program is aﬀected. The additional number of programs aﬀected is a random number which follows a binomial distribution with size 4 and probability 0.5 (so that number of programs aﬀected is 1,2,3,4 or 5). What is the probability mass function for the number of programs aﬀected for a randomly chosen crashed computer?
+
+It's given that we are  chosing a crashed computer from a random sample of crashed computers.
+The probability that a discrete random variable X takes on a particular value x,P(X=x)=f(x) is called probability mass function.
+
+```{r}
+for_affecting_1<-dbinom(0,4,0.5)
+for_affecting_2<-dbinom(1,4,0.5)
+for_affecting_3<-dbinom(2,4,0.5)
+for_affecting_4<-dbinom(3,4,0.5)
+for_affecting_5<-dbinom(4,4,0.5)
+for_affecting_1
+for_affecting_2
+for_affecting_3
+for_affecting_4
+for_affecting_5
+
+```
+
+## c. What is the expected number of programs identiﬁed as aﬀected in an eight-hour work day?
+The probability that a discrete random variable X takes on a particular value x P(X=x)=f(x) is called probability mass function.
+
+Expected value per day =(Programs_affected*Probability)*(# of crashes)
+Let y= Programs_affected*Probability
+
+```{r}
+y<-(for_affecting_1*1+for_affecting_2*2+for_affecting_3*3+for_affecting_4*4+ for_affecting_5*5)
+Expected_affected_programs<-y*(4)
+print(Expected_affected_programs)
+
+```
+
+OR
+
+```{r}
+set.seed(100)
+```
+
+Here we use simulation to estimate the expectation:
+
+```{r}
+mean(
+  replicate(
+    1000,
+    sum(
+      sample(K,rpois(1,4),replace=TRUE,prob=pK)
+    )
+    )
+)
+```
+
+
+
+
+## d. Given that the amount of time that is required to ﬁx a program can be modeled as a normally distributed random varaible with mean 30 min and standard deviation 10 min, and that the hourly rate that the developers charge is $150, what is the expected amount of money that must be spent on developers in a work week which consists of 5 eight-hour days?
+Developer works for 8 hours and for 5 days in a work week= 40hour
+Amount of money spent = $150*(time_required_to_fix)*(No._of_programs_expected_affected_40hrs)
+
+```{r}
+time_required_fix<-0.5
+Amount_spent<-150*time_required_fix*(Expected_affected_programs)*5
+print(Amount_spent)
+
+```
+
+By using 1000 simulations. 
+
+We could find number of programs failed in 1 week using lambda= 20 (since one week).
+Mean=0.5 hr
+SD= 0.1 hr
+```{r}
+lambda_d<- 20                                #Since, 1 week 
+set.seed(100)                                 #Setting seed 
+
+sim_values_d<- replicate(1000, sum(rnorm(sum(rbinom(rpois(1,lambda_d),4,0.5)+1),mean=.5,sd=.1))) #Simulating 1000 values for time taken to fix the programs 
+
+sim_Amount_spent<- sim_values_d*150      # Amount spent 
+
+mean(sim_Amount_spent)                         # Finding mean of simulated amount spent
+
+```
+
+Notice that the values are pretty close to each other in both the cases.
+
+
+## e. What is the 25th percentile of the weekly spend distribution identiﬁed in part d?
+
+```{r}
+five_num<- fivenum(sim_Amount_spent)
+five_num[2] 
+```
+
+
+
+
+# 2. The time between consecutive email arrivals to the computer server in an Internet-based retailer is random distributed. The IS manager of the company has estimated that the time between emails is approximately 3 minutes.
+1 email is received every 3 minutes on an average
+So, the expected rate of arrivales,  λ = 3 
+
+## a. Assuming that the time between the arrival of consecutive emails follows an exponential distribution, compute the expected rate of arrivals, λ.
+
+
+```{r}
+lambda_2<-1/3
+```
+
+## b. What is the probability that once a message arrives the next message will take more than 5 minutes to arrive.
+P(X>5)= 1-P(X<=5)
+```{r}
+1- pexp(q=5,rate=1/3)
+```
+
+## c. Assuming that on average the company receives 20 email messages per hour, use the Poisson distribution to compute the probability that in the next hour 25 messages will arrive.
+Let X be the number of emails recieved per hour. 
+As the average email messages=20, we apply poisson distribution to find out the P(X=25)
+
+```{r}
+lambda_c=20
+dpois(25,lambda_c)
+```
+
+## d. Let N be the number of emails that arrive in the next 5 minutes. What is the probability that no emails arrive?
+Let N be the number of emails that arrive in the next 5 minutes. 
+Taking,a poisson distribution with lambda= 1/3 minutes= 5/3 per 5 minutes 
+We set out to find P(X=0)
+
+```{r}
+lambda_d= 5/3                        #defining lambda
+dpois(0,lambda_d)                   # Probability
+
+
+```
+
+
+## e. Let T be the time until the next email arrives. What is the probability that the next email arrives in more than 5 minutes?
+Let T be the time until the next email arrives.
+Applying T as an exponential distribution with lambda=1/ 3 minutes= 1/3 per minute 
+
+We have to find out P(T>5) 
+
+= 1- P(T<=5)
+
+```{r}
+lambda_e= 1/3                           #defining lambda
+1- pexp(5,lambda_e)                     #Calculating probability 
+```
+
+## f. Consider your answers to the two prevoius parts. Are they the same? Explain why or why not.
+
+Both the answers turn out to be same as they point to the same situation. The time both the events are pointing turns out to be same. In case of d, we expect no emails to arrive in the next 5 minutes and thus we apply poisson distribution, whereas in case of e, we expect the time difference between the two consecutive email to be more than 5 minutes indicating we don't expect any email in the next 5 minutes.
+
+```{r}
+rbinom(20,20,0.5)
+rpois(20,4)
+```
+

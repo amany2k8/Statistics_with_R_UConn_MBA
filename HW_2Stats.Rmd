@@ -1,0 +1,190 @@
+---
+title: "Homework_Stats_2"
+output:
+  html_document:
+    df_print: paged
+    theme: united
+    toc: yes
+  html_notebook: default
+  word_document:
+    toc: yes
+  pdf_document: default
+name: Aman Singh
+---
+
+# Problem_1
+
+## Problem_1.a
+
+summarized the dataset women containing 2 variables & 15 observations. The two variables are Height( measured in inches) &  weight (measured in lbs)
+
+```{r}
+summary(women)
+```
+
+## Problem_1.b
+Declared Height & weight by variables and applied the formula of BMI (assigning a variable to it)
+
+```{r}
+y<-women$height
+Z<-women$weight
+BMI<-(z*703)/(y^2)
+print(BMI)
+```
+
+## Problem_1.c
+
+Added the column BMI to the dataframe women
+
+```{r}
+women ['BMI']=BMI
+summary(women)
+```
+
+## Problem_1.d
+
+
+```{r}
+MeanBMI<-sum(BMI)/length(BMI)
+calculatedvar<-1/(length(BMI)-1)*sum((BMI-MeanBMI)^2)
+SDBMI<-sqrt(calculatedvar)
+skewness<-(1/(length(BMI)))*sum((((BMI-MeanBMI))*(1/SDBMI))^3)
+kutosis<-(length(BMI))*sum((BMI-MeanBMI)^4)*(1/sum((BMI-MeanBMI)^2))
+print(MeanBMI)
+print(calculatedvar)
+print(SDBMI)
+print(skewness)
+print(kutosis)
+```
+
+## Problem_1.e
+
+Skewness is more than 0; we can safely say we have a right skewed dataset BMI.
+
+## Problem_1.f
+
+A kurtosis more than 3 (positive excess) is the opposite situation - leptokurtic and over here we have 9.58 as the kurtosis,leptokurtic.
+
+
+
+# Problem_2
+
+## Problem_2.a
+
+Loaded the table from the saved destination
+
+```{r}
+dataset<-read.table("filtered_qb.csv",sep=",",header = TRUE)
+```
+
+
+## Problem_2.b
+
+The mean in both the cases are almost similar, but the variance/ SD in case of actuals is pretty high indicating the increased separation of actuals values from mean.
+In case of skewness, the projections is more skewed toward the right as compared to actuals.
+In case of kurtosis, the projections is more leptokurtic as compared to actuals.
+
+```{r}
+summary(dataset)
+y<-dataset$projections
+z<-dataset$actuals
+MenProj<- sum(y)/length(y)
+calculatedvarproj<-1/(length(y)-1)*sum((y-MenProj)^2)
+SDBMIProj<-sqrt(calculatedvarproj)
+skewness1<-(1/(length(y)))*sum((y-MenProj)^3)*(1/SDBMIProj^3)
+kutosis1<-(length(y))*sum((y-MenProj)^4)*(1/sum((y-MenProj)^2))
+MenAct<- sum(z)/length(z)
+calculatedvaract<-1/(length(z)-1)*sum((z-MenAct)^2)
+SDBMIAct<-sqrt(calculatedvaract)
+skewness2<-(1/(length(z)))*sum((z-MenAct)^3)*(1/SDBMIAct^3)
+kutosis2<-(length(z))*sum((z-MenAct)^4)*(1/sum((z-MenAct)^2))
+print(MenProj)
+print(MenAct)
+print(calculatedvarproj)
+print(calculatedvaract)
+print(SDBMIProj)
+print(SDBMIAct)
+print(skewness1)
+print(skewness2)
+print(kutosis1)
+print(kutosis2)
+
+
+```
+
+
+
+## Problem_2.c
+c. Describe the data that was collected.
+
+```{r}
+our.five.sum<-fivenum(dataset$actuals)
+print(our.five.sum)
+print(median(our.five.sum))
+```
+
+## Problem_2.d
+
+The plot function does give a positive correlation with somehwat strictly positive for initial values of projections and actuals.
+```{r}
+boxplot(dataset$projections)
+boxplot(dataset$actuals)
+plot(dataset$projections,dataset$actuals)
+hist(dataset$projections)
+hist(dataset$actuals)
+hist(dataset$actuals,breaks=10)
+hist(dataset$actuals,breaks=30)
+
+```
+ 
+ 
+
+# Problem_3
+```{r}
+library(ISwR)
+View(cars)
+```
+
+## Problem_3.a
+
+There are 50 observations in this dataset comprising two variables speed and distance.
+
+## Problem_3.b
+
+```{r}
+copy_cars<- cars
+```
+## Problem_3.c
+
+```{r}
+time<-(copy_cars$dist)/(copy_cars$speed)
+copy_cars ['time']<- time
+print(copy_cars)
+
+```
+
+## Problem_3.d
+
+```{r}
+head(copy_cars,14)
+```
+
+## Problem_3.e
+
+```{r}
+median(copy_cars$time)
+```
+
+## Problem_3.f
+
+```{r}
+our.five.sum2<-fivenum(copy_cars$time)
+summary(our.five.sum2)
+View(our.five.sum2)
+Q1<-our.five.sum2[2]
+Q3<-our.five.sum2[4]
+print(Q1)
+print(Q3)
+
+```
+

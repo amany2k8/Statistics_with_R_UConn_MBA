@@ -1,0 +1,342 @@
+---
+title: "Homework_Stats_10"
+output:
+  html_document:
+    df_print: paged
+    theme: united
+    toc: yes
+  html_notebook: default
+  word_document:
+    toc: yes
+  pdf_document: default
+name: Aman Singh
+---
+For each problem, unless otherwise speciﬁed, please assume that the conﬁdence level is 95%.
+#Problem 1
+
+In this problem we will generate data and evaluate how well a linear model can be used to model a relationship. Don’t worry if the assumptions required to use linear regression aren’t true—even if the assumptions are false, it is still OK to use a linear model for prediction, however some of the statistical tests on the model that we will discuss in the next class will no longer be appropriate.
+a. Generate a vector X with 30 values, where each value is generated from a normal distribution with mean 30 and standard deviation 5. Generate a vector Y with 30 values where each value is 10 times the corresponding value in X plus a random value, generated from a normal distribution with mean 3 and standard deviation 1. Now, ﬁt a linear model.
+1. What are the coeﬃcients? 2. What do you predict the Y value will be if X = 32.8? 3. What is the R2 value?
+b. Generate a vector X with 30 values, where each value is generated from a uniform distribution with minimum 20 and maximum 30. Generate a vector Y with 30 values where each value is 10 times the corresponding value in X plus a random value, generated from a normal distribution with mean 3 and standard deviation 1. Now, ﬁt a linear model.
+1. What are the coeﬃcients? 2. What do you predict the Y value will be if X = 32.8? 3. What is the R2 value?
+c. Generate a vector X with 30 values, where each value is generated from a normal distribution with mean 30 and standard deviation 5. Generate a vector Y with 30 values where each value is 10 times the corresponding value in X squared, plus a random value, generated from a normal distribution with mean 3 and standard deviation 1. Now, ﬁt a linear model.
+1. What are the coeﬃcients? 2. What do you predict the Y value will be if X = 32.8? 3. What is the R2 value?
+d. Compare the three models. Why do you think the R2 values compare as they do? Generating scatter plots may be useful.
+
+
+##Problem_1.a
+
+Generate a vector X with 30 values, where each value is generated from a normal distribution with mean 30 and standard deviation 5.
+
+
+```{r}
+set.seed(100)
+x<-c(rnorm(n = 30, 30, 5))
+x
+```
+
+Generate a vector Y with 30 values where each value is 10 times the corresponding value in X plus a random value, generated from a normal distribution with mean 3 and standard deviation 1.
+
+```{r}
+z<-c(rnorm(n = 30, 3, 1))
+y<-c((10*x+z))
+y
+reg1 = lm(y~x)
+```
+
+```{r}
+reg1$coefficients[1]
+reg1$coefficients[2]
+```
+
+```{r}
+predict(reg1,data.frame(x=32.8))
+```
+
+```{r}
+summary(reg1)
+r1<-summary(reg1)$adj.r.squared
+r1
+```
+
+```{r}
+cor(y,x)
+cor.test(y,x)
+```
+
+
+##Problem_1.b
+
+Generate a vector X with 30 values, where each value is generated from a uniform distribution with minimum 20 and maximum 30.
+
+```{r}
+set.seed(100)
+x1<-runif(30, 20, 30)
+x1
+```
+
+
+Generate a vector Y with 30 values where each value is 10 times the corresponding value in X plus a random value, generated from a normal distribution with mean 3 and standard deviation 1.
+
+```{r}
+z1<-c(rnorm(n = 30, 3, 1))
+y1<-c((10*x1+z1))
+y1
+```
+
+```{r}
+reg2<-lm(y1~x1)
+summary(reg2)
+```
+
+```{r}
+reg2$coefficients[1]
+reg2$coefficients[2]
+```
+
+```{r}
+predict(reg2,data.frame(x1=32.8))
+```
+
+```{r}
+r2<-summary(reg2)$adj.r.squared
+r2
+```
+
+```{r}
+cor(y1,x1)
+cor.test(y1,x1)
+```
+
+##Problem_1.c
+
+```{r}
+y2<-(10*(x^2)+z)
+y2
+```
+
+```{r}
+reg3<-lm(y2~x)
+reg3
+summary(reg3)
+fitted(reg3)
+
+```
+
+```{r}
+reg3$coefficients[1]
+reg3$coefficients[2]
+```
+
+```{r}
+predict(reg3,data.frame(x=32.8))
+```
+
+```{r}
+r3<-summary(reg3)$adj.r.squared
+r3
+```
+
+
+```{r}
+cor(y2,x)
+cor.test(y2,x)
+```
+
+
+
+##Problem_1.d
+
+```{r}
+Rsq<-c(r1,r2,r3)
+Rsq
+```
+
+
+The R-squares are the pretty much the same across the three models. The R² of 0.99 tells us that the variance of the residuals is 99% of the variance of our response (given our data,our model, and our assumptions). Not less, and not more. Imagine: if you had just two completely arbitrary (but not identical) values, a linear regression on whatever predictor will result in an R² of 1.0. So? Does this mean you are absolutely sure that the predictor explains the variation of the response? This is an extreme (and somewhat stupid) example, but it makes very clear that R² can not be related to a "degree of certainty" (or belief, or confidence, etc).
+
+
+
+When a scatterplot between the response and a predictor shows a non-linear relationship where the residuals are reasonably normal in distribution, appropriate transformations on the predictor may linearize the relationship between the variables without drastically altering the distribution of the residuals. After the transformation of the predictor(s), the residuals produced with the transformed variable(s) in the new model will need
+to be reanalyzed to assure normality assumptions are still satisfied.
+
+```{r}
+plot(y~x)
+plot(y1~x1)
+plot(y2~x)
+```
+After analysing we notice that the response and predictors folow linear relationship.
+
+Scatterplots of residuals versus a time, sequence, or order variable can often detect non-independence of error terms. 
+```{r}
+plot(reg1)
+```
+The plot in the upper left panel shows residuals plotted against fitted values. This plot can be used to detect lack of fit. If the residuals show some curvilinear trend, the current model is not appropriate; however,
+transforming one or more of the variables can often remedy this problem. In this graph,
+such a problem does exist. The same plot can be used to assess the constant variance
+assumption on the errors. In this case, the variance appears constant as the fitted values
+vary. 
+The second default graph is a normal quantile-quantile plot of the residuals (upper
+right corner of Figure 12.10). In this case, there is not a clear deviation from normality.
+The lower left graph plots the square root of the residuals versus the fitted values. Assuming
+symmetry of the errors, this graph helps assess the constant variance of the errors, which in
+this case seems to be a reasonable assumption. 
+The lower right panel shows standardized residuals (as defined in (12.58)) versus leverage points. Contours for Cook’s distance  of 0.5 and 1 facilitate an understanding of the relationship among the residuals, leverage values, and Cooks’s distance.
+
+```{r}
+plot(reg2)
+```
+The plot in the upper left panel shows residuals plotted against fitted values. This plot can be used to detect lack of fit. If the residuals show some curvilinear trend, the current model is not appropriate; however,
+transforming one or more of the variables can often remedy this problem. In this graph,
+such a problem does exist. The same plot can be used to assess the constant variance
+assumption on the errors. In this case, the variance appears constant as the fitted values
+vary. 
+The second default graph is a normal quantile-quantile plot of the residuals (upper
+right corner of Figure 12.10). In this case, there is not a clear deviation from normality.
+The lower left graph plots the square root of the residuals versus the fitted values. Assuming
+symmetry of the errors, this graph helps assess the constant variance of the errors, which in
+this case seems to be a reasonable assumption. 
+The lower right panel shows standardized residuals (as defined in (12.58)) versus leverage points. Contours for Cook’s distance  of 0.5 and 1 facilitate an understanding of the relationship among the residuals, leverage values, and Cooks’s distance.
+
+```{r}
+plot(reg3)
+```
+The plot in the upper left panel shows residuals plotted against fitted values. This plot can be used to detect lack of fit. If the residuals show some curvilinear trend, the current model is not appropriate; however,
+transforming one or more of the variables can often remedy this problem. In this graph,
+such a problem does exist. The same plot can be used to assess the constant variance
+assumption on the errors. In this case, the variance appears constant as the fitted values
+vary. 
+The second default graph is a normal quantile-quantile plot of the residuals (upper
+right corner of Figure 12.10). In this case, there is a clear deviation from normality.
+The lower left graph plots the square root of the residuals versus the fitted values. Assuming
+symmetry of the errors, this graph helps assess the constant variance of the errors, which in
+this case seems to be a reasonable assumption. 
+The lower right panel shows standardized residuals (as defined in (12.58)) versus leverage points. Contours for Cook’s distance  of 0.5 and 1 facilitate an understanding of the relationship among the residuals, leverage values, and Cooks’s distance.
+
+
+#Problem_2
+
+Consider the data set mtcars which is available in base R.
+a. Build a linear regression model predicting mpg using hp.
+b. What is the regression equation?
+c. What would you predict the mpg of a car to be if hp is 110 using the regression equation?
+d. Run a statistical test to determine if there is a linear relationship between hp and mpg. Formally write the null and alternative hypotheses. What is the p-value of the test?
+e. As brieﬂy mentioned in class, there is a statistical test that can be run for the correlation between two variables. If you have variable X and variable Y , the null hypothesis is that there is no correlation between the two variables, and the alternative hypothesis is that there is non-zero correlation between the two variables. The command is cor.test which takes two arguments, that are the variables you are testing for correlation. Before running the test, what is the correlation between hp and mpg?
+f. Run a statistical test to determine if there is correlation between the two variables using cor.test(mtcars$mpg,mtcars$hp). This has various outputs. What is the conﬁdence interval? Note: This represents a 95% conﬁdence interval for the correlation between the two variables.
+g. What is the p-value for the statistical test in the previous part? Do you reject the null hypothesis?
+h. In part d. you found a p-value for whether or not there is a statistically signiﬁcant linear relationship between hp and mpg, and you found a p-value. How does that p-value compare with the p-value found in part g.? Explain the relationship.
+i. There are other variables in the data set. Try adding some variables to the regression model. Do any result in a better adjusted r2? What is the best collection of variables that you can identify for predicting mpg that has the highest adjusted r2?
+
+##Problem_2a
+
+```{r}
+reg4 <- lm( mtcars$mpg ~ mtcars$hp )
+reg4
+
+```
+
+##Problem_2b
+
+The estimated regression function is Yi` = 30.1 - 0.07xi
+or mpg = 30.1 - 0.07*hp
+
+```{r}
+reg4$coefficients[1]
+reg4$coefficients[2]
+mtcars$hp*reg4$coefficients[2]+reg4$coefficients[1]
+```
+
+##Problem_2c
+Since,
+
+mpg = 30.1 - 0.07*hp
+
+mpg = 30.1 - 0.07*110 = 30.1 - 7.7 = 23.4
+##Problem_2d
+
+The five-step procedure is used to test for a linear relationship between mpg and hp.
+Step 1: Hypotheses — H0 : B1 = 0 versus H1 : B1 not equal to 0.
+Step 2: Test Statistic — B1 = -0.068 is the test statistic. Assuming the assumptions of
+normal distribuiton are satisfied,
+B1 ⇠ N(B1, sigma^2).
+Step 3: Rejection Region Calculations — Because the standardized test statistic is
+distributed t198 and H1 is a two-sided hypothesis, the rejection region is |tobs| >
+t0.95;198 = 1.6526. The value of the standardized test statistic is tobs =-6.742389
+
+Step 4: Statistical Conclusion — The }-value is 2 ⇥ P(t198 ) 15.9117) = 2 ⇥ 0 = 0.
+I. From the rejection region, reject H0 because |-6.742389| is greater than 1.6526.
+II. From the p-value, reject H0 because the p-value ~ 0 is less than alpha or significance level.
+
+Step 5: English Conclusion — There is evidence to suggest a linear relationship between
+mpg and hp.
+
+
+```{r}
+summary(reg4)$coef # lm coefficients)
+confint(reg4, level = 0.95)
+summary(reg4)
+```
+
+##Problem_2e
+
+the null hypothesis is that there is no correlation between the two variables
+the alternative hypothesis is that there is non-zero correlation between the two variables.
+
+```{r}
+cor(mtcars$mpg,mtcars$hp)
+```
+
+##Problem_2f
+
+```{r}
+cor.test(mtcars$mpg,mtcars$hp)
+```
+
+
+95 percent confidence interval:
+ -0.8852686 -0.5860994
+
+##Problem_2g
+
+p-value = 1.788e-07
+
+##Problem_2h
+
+Both the p-values are the same and are equal to p-value = 1.788e-07.
+The p-values help determine whether the relationships that you observe in your sample also exist in the larger population. 
+In this question, we have two different cases where one talks about linearity whereas other talks about correlation. For linearity, there must be a correlation between the predictor and the response. So, if we rejected the null hypothesis that there is no linearity then we also in turn approved that there is a correlation between the variables. 
+In a nutshell, both the p-values are pointing to similar conditions.
+
+Note:
+The p-value for each independent variable tests the null hypothesis that the variable has no correlation with the dependent variable. If there is no correlation, there is no association between the changes in the independent variable and the shifts in the dependent variable. In other words, there is insufficient evidence to conclude that there is effect at the population level.
+If the p-value for a variable is less than your significance level, your sample data provide enough evidence to reject the null hypothesis for the entire population. Your data favor the hypothesis that there is a non-zero correlation. Changes in the independent variable are associated with changes in the response at the population level. This variable is statistically significant and probably a worthwhile addition to your regression model.
+
+##Problem_2i
+
+We notice that cyl,vs, am,gear,& carb are categorical variables.We also have to look out for multi-collinearity to robust our regression model
+
+```{r}
+reg5 <- lm(mtcars$mpg~mtcars$wt + mtcars$hp)
+p1<-summary(reg5)$adj.r.squared
+reg6 <- lm(mtcars$mpg~mtcars$wt + mtcars$hp+mtcars$disp)
+p2<-summary(reg6)$adj.r.squared
+reg7 <- lm(mtcars$mpg~mtcars$wt + mtcars$hp+mtcars$disp+mtcars$drat)
+p3<-summary(reg7)$adj.r.squared
+reg8 <- lm(mtcars$mpg~mtcars$wt + mtcars$hp+mtcars$disp+mtcars$qsec)
+p4<-summary(reg8)$adj.r.squared
+reg9 <- lm(mtcars$mpg~mtcars$wt + mtcars$hp+mtcars$qsec+mtcars$drat)
+p5<-summary(reg9)$adj.r.squared
+z10<-c(p1,p2,p3,p4,p5)
+z10
+```
+Upon analysis, we get that p5 with all the continous variables (weight,hp,qsec,& drat) gives the highest R-square value.
+
+```{r}
+reg10 <- lm(mtcars$mpg~mtcars$wt + mtcars$hp+mtcars$cyl)
+p6<-summary(reg10)$adj.r.squared
+p6
+summary(reg10)
+```
+
+but if we include categorical variable cylinder after much inspection we get that it provides the highest r-squared value then.
+

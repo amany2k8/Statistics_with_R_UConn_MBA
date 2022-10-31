@@ -1,0 +1,321 @@
+---
+title: "Homework_Stats_7"
+output:
+  html_document:
+    df_print: paged
+    theme: united
+    toc: yes
+  html_notebook: default
+  word_document:
+    toc: yes
+  pdf_document: default
+name: Aman Singh
+---
+#Problem 1
+
+Let X be a random variable that is normally distributed with mean 10 and standard deviation 2.
+Let Y be a random variable that is normally distributed with mean 15 and standard deviation 1.
+Let Z be a random variable that is 2 · X + 3 · Y .
+a. What is the expected value of X? Answer this question without simulation.
+b. What is the expected value of Y ? Answer this question without simulation.
+c. What is the expected value of Z? Answer this question without simulation.
+d. Use simulation to estimate the correlation of Y and Z. What is your estimate of the correlation?
+e. Using your estimate from the previous part, and without additional simulation, what is the
+variance of Y + Z?
+f. Simulate Y + Z. What is the estimated variance of Y + Z based on the simulation?
+
+## Problem 1a
+
+the expected value is the weighted average of the random variable X = 10
+
+## Problem 1b
+
+the expected value is the weighted average of the random variable Y = 15
+## Problem 1c
+
+the expected value is the weighted average of the random variable Z = 2*10+3*15= 65
+Variance of (Z)= (2^2)x(Var(X)+(3^2)x(Var(Y) +2x2x3xcov(X,Y)
+
+```{r}
+set.seed(100)
+x<-rnorm(10,10,4)
+y<-rnorm(10,15,1)
+print(covariance_xy<-cov(x,y))
+print(Variance_Z<-4*4+9*1+12*covariance_xy)
+```
+
+## Problem 1d
+
+```{r}
+set.seed(100)
+y<-rnorm(10,15,1)
+z<-rnorm(10,65,4.69)
+cor(y,z)
+COr_sim<-mean(replicate(1000,cor(rnorm(10,15,1),rnorm(10,65,4.69))))
+COr_sim
+```
+
+
+## Problem 1e
+Y+Z = Y+2X+3Y = 2X+4Y
+
+Variance of (Y+Z)= (2^2)x(Var(X)+(4^2)xVar(Y) +2x2x4xcov(X,Y)
+
+cov(X,Y)= corr
+```{r}
+print(Variance_New<-4*4+16*1+16*covariance_xy)
+```
+
+
+## Problem 1f
+
+```{r}
+set.seed(100)
+y<-rnorm(1,15,1)
+z<-rnorm(1,65,4.69)
+mean(y+z)
+print(Sum_Sim<-mean(replicate(1000,mean(rnorm(1,15,1)+rnorm(1,65,4.69)))))
+print(Variance_sim<-mean(replicate(1000,Variance_New)))
+      
+```
+
+#Problem_2
+
+In class we discussed Chebyshev’s rule, which states that regardless of how the data are distributed,
+at least (1 − 1/k2) · 100% of the distribution of a variable will fall within k standard deviations of
+the mean (for k > 1).
+a. For k = 2 and for k = 3, what is the maximum amount of the distribution that will fall within
+k standard deviations of the mean?
+b. Find a distribution that minimizes the portion of the distribution (mass for discrete, density
+for continuous) that falls within 2 standard deviations of the mean. How does this compare
+with Chebyshev’s rule? Explain.
+c. Find a distribution that minimizes the portion of the distribution (mass for discrete, density
+for continuous) that falls within 3 standard deviations of the mean. How does this compare
+with Chebyshev’s rule? Explain.
+
+
+##Problem_2a
+
+for k=2 , atleast (1-1/4)*100 % = 75% of the distribution will fall within k standard deviations and
+for k=3, atleast (1-1/9)*100% = 88.89% of the distribution.
+
+Thus, for k=2 or 3 maximum 100% of the distribution will fall within k standard deviations.
+
+##Problem_2b
+for k=2,
+We can go for discrete mass function with the values keep checking the condition with chebychev principle.
+For this reason the results are usually weak. The value given by the theorem is a lower
+bound only. That is, we know that the probability of a random variable falling
+within two standard deviations of the mean can be no less than 3/4, but we never
+know how much more it might actually be. Only when the probability distribution
+is known can we determine exact probabilities. For this reason we call the theorem
+a distribution-free result. When specific distributions are assumed, as in future
+chapters, the results will be less conservative. 
+
+
+```{r}
+sim_values_2b <- replicate (1000, runif(1, min=-1 , max= +1)) 
+i <- 0
+counter<- 0
+for ( i in 1: 1000)
+{ 
+  if ((sim_values_2b[i] <= mean(sim_values_2b) + 2*sd(sim_values_2b)) && (sim_values_2b[i] >= mean(sim_values_2b) - 2*sd(sim_values_2b)))
+      
+      { counter<- counter+1 }    
+         
+} 
+
+counter/ length(sim_values_2b) 
+
+```
+
+##Problem_2c
+for k=3,
+We can go for discrete mass function with the values keep checking the condition with chebychev principle.
+
+```{r}
+sim_values_2c <- replicate (10000, runif(1, min=-1 , max= +1)) 
+i <- 0
+counter<- 0
+for ( i in 1: 10000)
+{ 
+  if ((sim_values_2c[i] <= mean(sim_values_2c) + 2*sd(sim_values_2c)) && (sim_values_2c[i] >= mean(sim_values_2c) - 2*sd(sim_values_2c)))
+      
+      { counter<- counter+1 }    
+         
+} 
+
+counter/ length(sim_values_2c) 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Problem_3
+
+Suppose that the true distribution of the median salary in an affluent suburb of New York is
+normally distributed with mean $120,000 and standard deviation $10,000.
+a. Suppose I take a random sample of 10 individuals from the area. What is the distribution of
+the mean salary in the sample? Please indicate the parameters of the distribution as well as
+the distribution type.
+b. Simulate 1000 samples of size 10. What is the average value of the sample mean? What is
+the standard deviation of the sample mean? How does that compare with your answer to the
+previous part.
+c. Simulate 10000 samples of size 10. What is the average value of the sample mean? What is
+the standard deviation of the sample mean? How does that compare with your answer to the
+previous parts.
+d. Simulate 100000 samples of size 10. What is the average value of the sample mean? What
+is the standard deviation of the sample mean? How does that compare with your answer to
+the previous parts.
+e. Now suppose you take a random sample of size 30. What is the distribution of the mean salary
+in the sample? Please indicate the parameters of the distribution as well as the distribution
+type.
+f. Simulate 100000 samples of size 30. What is the average value of the sample mean? What
+is the standard deviation of the sample mean? How does that compare with your answer to
+the previous parts.
+
+##Problem_3.a
+
+As per the lecture, the sample of 10 individuals will also be normally distributed.
+
+With the mean of the sample = 120,000
+Standard deviation = 10,000/sqrt(10) = 3162.28
+
+
+##Problem_3.b
+
+```{r}
+set.seed(100)
+x<-rnorm(10,120000,10000)
+print(Sim_sample_mean<-mean(replicate(1000,rnorm(10,120000,10000))))
+print(Sim_sample_sd<-sd(replicate(1000,rnorm(10,120000,10000))))
+```
+
+It's coming out to be larger as compared to the previous one.
+
+##Problem_3.c
+
+```{r}
+set.seed(100)
+x<-rnorm(10,120000,10000)
+print(Sim_sample_mean2<-mean(replicate(10000,rnorm(10,120000,10000))))
+print(Sim_sample_sd2<-sd(replicate(10000,rnorm(10,120000,10000))))
+```
+
+##Problem_3.d
+
+```{r}
+set.seed(100)
+x<-rnorm(10,120000,10000)
+print(Sim_sample_mean3<-mean(replicate(100000,rnorm(10,120000,10000))))
+print(Sim_sample_sd3<-sd(replicate(100000,rnorm(10,120000,10000))))
+```
+##Problem_3.e
+
+As per the lecture, the sample of 30 individuals will also be normally distributed.
+
+With the mean of the sample = 120,000
+Standard deviation = 10,000/sqrt(30) = 1825.74
+
+
+
+##Problem_3.f
+
+```{r}
+set.seed(100)
+x<-rnorm(30,120000,10000)
+print(Sim_sample_mean<-mean(replicate(100000,x)))
+print(Sim_sample_sd<-sd(replicate(100000,x)))
+```
+The sd is coming out to be larger than the manually calculated sd.
+
+#Problem_4
+You are looking to estimate the proportion of pet owners that have pet insurance. You know
+from experience that at least 10% have pet insurance. A statistician takes a random sample of
+1000 pet owners and creates a 95% confidence interval for the proportion of pet owners that have
+pet insurance. The confidence interval is [0.23, 0.31]. For each part below, if you can answer the
+question, provide the answer and an explanation. If you cannot answer the question, provide details
+on why you cannot.
+a. What is the probability that the true population proportion of pet owners that have pet
+insurance is above 0.1?
+b. What is the probability that the true population proportion of pet owners that have pet
+insurance is between [0:23; 0:31]?
+c. David Bergman has decided to create a procedure for building interval estimates. He takes a
+random sample of 100 pet owners. If the proportion of pet owners in the sample that have
+pet insurance is less than 0.1, he reports an interval estimate of [0.0, 0.05]. If the proportion
+of pet owners in the sample that have pet insurance is greater than or equal to 0.1, he reports
+an interval estimate of [0.1, 1.0]. Ignoring the statistician’s test, but taking the rest of the
+problem statement into account, what is the maximum probability that David Bergman’s test
+reports an interval of [0.0, 0.05]?
+d. Suppose the true proportion of pet owners that have pet insurance is 0.3. What is the
+confidence level of David Bergman’s test?
+
+
+##Problem_4a
+
+It's given that there are going to be atleast 0.1 proportion, thus we can claim that the probability will be almost 1 as we have to consider 0.1 case too.
+
+##Problem_4b
+confidence interval doesn't signifies the true proportion, so it can't be calculated. 
+
+##Problem_4c
+a sample of 100 pet owners, indicative probability. 
+
+Let, X be the number of pet owners that have a pet insurance. 
+We shall be modelling X as a binomial variable with n= 1000 and pi= 0.1. 
+
+
+```{r}
+
+sim_values_4c <- replicate (1000, rbinom(1, size= 100, prob= 0.1)) 
+
+counter <- 0
+
+for (i in 1: length(sim_values_4c)) 
+  
+{ if(sim_values_4c[i]<10)
+{ counter <- counter+1}
+  
+} 
+
+counter/ length(sim_values_4c) 
+
+
+
+```
+
+##Problem_4d
+
+Here, given that neam proportion= 0.3. 
+And, we know that sd_proportion = sqrt ( ( pi* (1-pi) ) / (sample size) ) 
+
+```{r}
+pi_4d <- 0.3 
+
+sd_proportion <- sqrt( ( pi_4d * (1-pi_4d) ) / 100 )  
+
+```
+
+Now, David Bergman test is as confident as the possibility of selecting a sample of size 100 which includes the true mean. 
+
+So, we find probability of selecting a sample which shall include the true proportion. 
+
+```{r}
+1- pnorm (0.1, 0.3, sd_proportion) 
+```

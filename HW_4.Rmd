@@ -1,0 +1,416 @@
+---
+title: "Homework_Stats_3"
+output:
+  html_document:
+    df_print: paged
+    theme: united
+    toc: yes
+  html_notebook: default
+  word_document:
+    toc: yes
+  pdf_document: default
+name: Aman Singh
+---
+# Problem 1
+Given:
+
+The maximum number of VIP attendees that can be accommodated   = 300
+The probability that a attendee doesn't show up =  0.08
+Therefore, the probability that a attendee shows up p = 0.92
+
+It is also given that the VIP booth is overbooked with n = 325
+
+Let X be a random variable of the number of attendees who make a reservation and show up
+X can be modeled using a binomial distribution with n =325 and p = 0.92
+
+```{r}
+capacity <- 300
+p<-0.92
+n<-325
+```
+
+## Problem 1a
+
+Expected number of attendees that show up
+
+```{r}
+e <- n*p
+e
+```
+
+In other way 
+
+From the basic defintion that expectaed value of a discrete random variable is summation of product of random variable values and their corresponding probability
+=0*P(X=0) + 1*P(X=1) +2*P(X=2)+ ...... + 325*P(X=325)
+
+```{r}
+a <- seq(0,325)
+e <- sum(
+        a*dbinom(a, size = 325, prob = 0.92 )
+        )
+e
+```
+
+
+## Problem 1b
+
+probability that all seats are occupied
+
+This happens when number of attendees shows is 300 or more
+P(X>=300) = 1 - P(X<300)
+          = 1 - P(X<= 299)
+
+```{r}
+1 - pbinom(299, size = 325, prob = 0.92)
+```
+
+
+## Problem 1c
+
+Probability that more people show up than there is space for
+
+This happens when the number of attendees is more than 300
+P(X>300) = 1 - P(X<= 300)
+
+
+```{r}
+1 - pbinom(300, 325, 0.92)
+```
+
+## Problem 1d
+
+Given that at least one of the seats is vacant, what is the probability that attendees for at
+least 90% of the VIP capacity showed up?
+
+
+When at least 90% of the VIP capacity showed up X takes values 0.9*300 to 300 
+        ==> 270 to 300
+        
+A = P(270<= X <= 300)
+
+When at least one of the seats is vacant, X takes any value from 0 to 299.
+B = P(X<=299)
+
+A n B = P(270<= X <= 299)       
+
+Required probability is P(A/B) = P(A n B)/P(B)
+                               = P(270<= X <= 299)/P(X<=299)
+                               = [P(X <= 299) - P(X<= 269)]/P(X<=299)
+       
+
+```{r}
+(pbinom(299,325,0.92)-pbinom(269,325,0.92))/pbinom(299,325,0.92)
+```
+
+## Problem 1e
+
+Suppose that all of the seats are occupied. What is the probability that exactly 300 people
+arrived?
+
+A = Probability that exactly 300 people arrived; X takes value 300
+  = P(X = 300)
+
+B = All seats are occupied ; X takes values from 300 to 325
+  = P(X>= 300)
+  = 1 - P(X<= 299)
+
+Required probability is P(A/B) = P(A n B)/P(B)
+                               = P(X = 300)/(1 - P(X<= 299))
+
+```{r}
+dbinom(300, 325, 0.92)/(1-pbinom(299,325,0.92))
+```
+
+##Problem 1.f 
+
+Suppose that VIP tickets sell for $250 and Eventbrite has to pay every person that shows up
+and doesn't have a seat $300 on top of refunding the $250. How many VIP tickets should
+Eventbrite offer to maximize revenue?
+
+Before we answer the question let's consider the sub problem
+What is the expected number of people that Eventbrite should consider refunding when 325 tickets are booked.
+
+Tickets	| No of visitors	|	Probability
+booked  | to be refunded  |
+
+0		      0		          dbinom(0,325,0.92)
+1	        0	          	dbinom(1,325,0.92)
+2		      0	          	dbinom(2,325,0.92)
+..	    	0	          	...
+..	    	0	          	...
+298	    	0	          	dbinom(298,325,0.92)
+299	    	0	          	dbinom(299,325,0.92)
+300	    	0	          	dbinom(300,325,0.92)
+301	    	1	          	dbinom(301,325,0.92)
+302	    	2	          	dbinom(302,325,0.92)
+303	    	3	          	dbinom(303,325,0.92)
+..				              ..
+..		    		          ..
+324	    	24          	dbinom(324,325,0.92)
+325	    	25         		dbinom(325,325,0.92)
+
+The above is nothing but the probability mass function of number of attendees to be refunded. 
+Obsrve that the probability has an effect only when tickets booked is more than 300 which makes sense as up to 300 tickets, number of attendees to be refunded is 0  
+
+So the expected number of attendees to be refunded 
+
+```{r}
+a <- seq(301,325)
+e <- sum((a-300)*dbinom(a,325,0.92))
+e
+```
+
+Expected amount to be refunded when 325 tickets are booked is e*(550)
+```{r}
+e*550
+```
+Expected revenue generated 
+
+```{r}
+325*250 - e*550
+```
+
+Let's follow this approach and calcuate the revenue When Eventbrite overbooks tickets from 301 to 350 and let's look at the trend
+
+```{r}
+Revenue <- vector(mode = "numeric", length = 50)
+
+for (i in 301:350)
+{
+  j <- i-300
+  g <- seq(301,i)
+  Revenue[j] <- i * 250 - sum((g-300) * dbinom(g,size = i, prob = 0.92) ) * 550
+  print(paste("Revenue for ",i, "tickets $",round(Revenue[j],3)))
+}
+print(paste("Eventbrite should sell", 300 + which(Revenue == max(Revenue)), "tickets in order to maximize the Revenue. And the maximum Revenue is $", round(max(Revenue),3)) ) 
+```
+
+
+#Problem 2
+## Problem 2a
+
+```{r}
+lambda = 8*4*3
+lambda
+```
+
+## Problem 2b
+
+```{r}
+1-ppois(100,lambda)
+```
+
+## Problem 2c
+
+Greater than or equal to 3 but less than 10 Customer
+ Time Frame: 2Hours
+ 
+ P(2<X<=9) = F(9) - F(2)
+ 
+
+
+```{r}
+lambda2 = 2*4*3
+ppois(9,lambda2) - ppois(2,lambda2)
+```
+
+## Problem 2d
+
+
+To calculate P(X>=7) where Lambda is combined for two branches by adding lambdas for both the branches
+```{r}
+
+lambda3 = (1*3) + (1*2)
+lambda3 = 5
+1-ppois(6,lambda3)
+
+#or
+
+x <- replicate(10000, rpois(1,3)+rpois(1,2))
+mean(x>=7)
+
+```
+
+#Problem 3
+
+
+## Problem 3a
+```{r problem3a, echo=TRUE}
+my_dbinom <- function(x,n,pi){
+  num <- (factorial(n)*((pi)^x)*((1-pi)^(n-x)))
+  den <- (factorial(x)*factorial(n-x))
+  return(num/den)
+}
+#or
+
+my_dbinom = function(x,n,pi){
+  return(choose(n,x)*(pi^x)*(1-pi)^(n-x))
+}
+
+dbinom(120,140,0.2)
+my_dbinom(120,140,0.2)
+```
+
+## Problem 3b
+
+```{r problem3b, echo=TRUE}
+expect <- function(n,pi=0.5) {
+  
+  expectation = n*pi
+  return(expectation)
+}
+
+```
+
+
+## Problem 3c
+
+```{r problem3c, echo=TRUE}
+variance <- function(n,pi=0.5){
+  
+  var = (n*pi)*(1-pi)
+  return(var)
+}
+
+```
+
+
+#Problem_1
+
+Eventbrite handles the sales of VIP tickets to a partciular sporting event every year. Based on historical data they estimate that 8% of the visitors do not show up and thereby seats are left unoccupied. Eventbrite is considering overbooking for the actual capacity of 300 VIP seats in order to ﬁll all the seats and increase their revenue from pre-sold ticket. Suppose they decide to sell 325 tickets.
+
+## a. What is the expected number of attendees that show up?
+Since, only 92% of total booked tickets show up, we can say that only 
+```{r}
+show_up<-0.92*325
+show_up
+```
+
+## b. What is the probability that all seats are occupied?
+
+This can happen only when 300 or more than 300 actually show up
+Looking for P(300<=X =<325)
+```{r}
+n<-325
+pi<-0.92
+pbinom( 325,n,pi)-pbinom(300,n,pi)
+```
+
+
+## c. What is the probability that more people show up than there is space for?
+Looking for P(300< X =<325)= P(X=<325)-P(X>300)
+```{r}
+pbinom( 325,n,pi)-pbinom(301,n,pi)
+```
+
+
+## d. Given that at least one of the seats is vacant, what is the probability that attendees for at least 90% of the VIP capacity showed up?
+Looking for P(270=< X <325)= P(X<325)-P(X>=270)
+
+```{r}
+pbinom( 324,n,pi)-pbinom(270,n,pi)
+```
+
+
+## e. Suppose that all of the seats are occupied. What is the probability that exactly 300 people arrived?
+Looking for P(X =300)
+```{r}
+dbinom(300, 325, 0.92)/(1-pbinom(299,325,0.92))
+```
+
+## f. Suppose that VIP tickets sell for $250 and Eventbrite has to pay every person that shows up and doesn’t have a seat $300 on top of refunding the $250. How many VIP tickets should Eventbrite oﬀer to maximize revenue?
+
+If EventBrite sells y tickets then the revenue and for all the extra tickets it will have to return 550. Let k people show up during the boarding. Taking into case when k>300.
+
+Expected Revenue= Sum(R*pi)
+
+Expected Revenue (y,250,0.92)= sum(P(k)[250*min(k,300)-(550)*max(k-300,0)]) from k=0 to k=y
+                   = sum ((0.92)*[250*min(k,300)-(550)*max(k-300,0)]) from k=0 to k=y
+  
+
+```{r}
+# Create a sample of 50 numbers which are incremented by 1.
+y <- seq(300,350,by=1)
+k<- 0.92*y
+
+# Create the binomial distribution.
+z <- (250*max(k,300)-(0)*max(k-300,0))*dbinom(300,y,0.92)
+
+# Plot the graph for this sample.
+plot(y,z)
+print(y[which.max(z)])
+
+```
+
+# Problem_2
+A bank has two branches in a small town, and estimates that on average three customers every 15 minutes show up to the ﬁrst branch and two customers every 15 minutes show up to the second branch.
+
+## a. What is the expected number of customers that show up to the ﬁrst bank in a standard business day (9am-5pm)?
+Average 3 customers every 15 minutes,i.e, 12 customers every hour.
+So, in a 8 hrs business day, # of customers = 12*8 = 96 customers.
+
+## b. What is the probability that more than 100 customers show up to the ﬁrst branch in a normal business day?
+
+Let N = number of customers in a gvien work day.
+
+N will be modeled as a Poisson distribution with Lambda = 8*12=96
+(assume 8 hrs a day)
+
+P(X>100) =1- P(X<=100)
+```{r}
+our_lambda1<-96
+prob<-(1-ppois(100,our_lambda1))
+prob
+
+```
+
+
+## c. What is the probabilty that greater than or equal to 3 but less than 10 customers show up to the ﬁrst branch in two hours?
+
+In two hours, 12*2=24 customer on average show up.
+our_lambda2 = 24
+We have to find P(X<10)-P(X>=3)
+```{r}
+our_lambda2<-24
+ppois(9,our_lambda2)-ppois(3,our_lambda2)
+```
+
+## d. Challenge: What is the probabilty that at least 7 people show up to either branch within 15 minutes?
+
+In 15 minutes on either branch, on average=5= our_lambda3
+P(X>=7)=1-P(X<7)
+```{r}
+our_lambda3<-5
+prob2<-(1-ppois(6,our_lambda3))
+prob2
+```
+
+
+
+# Problem_3
+
+In class we explored how to calculate probabilities associated with events on binomial random variables. In this problem we will replicate one of the functions and add a few more.
+## a. Create a function called my dbinom which takes three required arguments. The arguments are x, n, and pi. The function should return the probability that a random variable that is binomially distributed equals x given that the number of independent trials is n and that the success probability is pi.
+
+```{r}
+my_dbinom<-function(x,n,pi){factorial(n)/(factorial(n-x)*factorial(x))*((pi)^x)*(1-pi)^(n-x)}
+n<-32
+pi<-0.9
+my_dbinom(30,n,pi)
+```
+
+## b. Write a function that calculates the expectation of a binomial random variable, which takes the two parameters of the binomial distribution as its arguments. Make the argument associated with the success probability an optional argument with default value 0.5.
+
+```{r}
+my_expectedvalue<-function(n,p=0.5){if(p>1){print("value can't be more than 1")}else{n*p}}
+my_expectedvalue(1)
+```
+
+## c. Write a function that calculates the variance of a binomial random variable, which takes the two parameters of the binomial distribution as its arguments. Make the argument associated with the success probability an optional argument with default value 0.5.
+
+```{r}
+my_variance<-function(n,p=0.5){if(p>1){print("value can't be more than 1")}else{n*p*(1-p)}}
+my_variance(10,1.1)
+
+```
+

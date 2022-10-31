@@ -1,0 +1,299 @@
+---
+title: "Exam_2"
+output:
+  html_document:
+    df_print: paged
+    theme: united
+    toc: yes
+  html_notebook: default
+  word_document:
+    toc: yes
+  pdf_document: default
+name: Aman Singh
+---
+
+Qn-1(a)
+
+```{r}
+library(MASS)
+car_reg<-lm(MPG.highway~MPG.city, data= Cars93)
+summary(car_reg)
+View(Cars93)
+```
+
+Qn 1(b)
+
+Yes, both have very low p-value thus significant.
+
+Qn 1(c)
+
+Multiple R-squared:  0.891,	Adjusted R-squared:  0.8898 
+
+qn 1(d)
+
+The only difference between adj R and R sq is the degrees of freedom.
+```{r}
+R.adj= 1- ((1-0.891)*(91)/(91-1))
+R.adj
+```
+
+And it is exactly the same
+Qn 1(e)
+
+
+```{r}
+SSR<- sum(( fitted(car_reg) - mean(Cars93$MPG.highway) )^2)
+SST<-sum(( Cars93$MPG.highway - mean(Cars93$MPG.highway) )^2)
+SSE<-sum(( fitted(car_reg) -Cars93$MPG.highway)^2)
+SSR
+SST
+SSE
+
+```
+
+We notice that, SST = SSR+SSE
+SST = total sum of squares(Total Variation.)
+Measures the variation of the Yi values around their mean Y.
+SSR = regression sum of squares (Explained Variation.)
+Variation attributable to the relationship between X and Y.
+SSE = error sum of squares(Unexplained Variation.)
+Variation in Y attributable to factors other than X.
+
+1(f)
+
+```{r}
+Expected_MPG<-car_reg$coefficients[1]+car_reg$coefficients[2]*16
+Expected_MPG
+
+```
+
+1(g)
+
+```{r}
+test.data1<-data.frame(MPG.city=16)
+test.data1
+CI_MPG<-predict(car_reg, test.data1, interval = "confidence")
+CI_MPG
+```
+
+1(h)
+
+```{r}
+MPG.city1<- c(8,10,12,14)
+data14<-data.frame(MPG.city=MPG.city1)
+PI_MPG<-predict(car_reg,data14, interval = "prediction")
+PI_MPG
+```
+
+
+2(a)
+
+```{r}
+library(readxl)
+ResidentialBuildingData <- read_excel("C:/Users/amany/Downloads/ResidentialBuildingData.xlsx")
+View(ResidentialBuildingData)
+```
+
+
+First we create Training and test data
+
+Next we change V1, which is a categorical variable into a factor and deleted the V-10 column.
+```{r}
+ResidentialBuildingData$`V-1`<-as.factor(ResidentialBuildingData$`V-1`)
+ResidentialBuildingData$'V-10' <- NULL
+str(ResidentialBuildingData)
+```
+
+```{r}
+Ind1<-sample(2,nrow(ResidentialBuildingData ),replace= TRUE, prob = c(0.75,0.25))
+Train1<-ResidentialBuildingData [Ind1==1, ]
+Test1<-ResidentialBuildingData [Ind1==2, ]
+```
+
+
+
+```{r}
+model_1<-step(lm(Train1$`V-9`~., data =Train1), type='backward')
+model_1
+car::vif(model_1)
+```
+
+
+Now we check this model for gvlma
+
+```{r}
+library(gvlma)
+gvlma(model_1)
+model_1
+summary(model_1)
+```
+
+
+
+(b)
+
+```{r}
+library(readxl)
+ResidentialBuildingData2 <- read_excel("C:/Users/amany/Downloads/ResidentialBuildingData.xlsx")
+View(ResidentialBuildingData2)
+```
+
+
+First we create Training and test data
+
+Next we change V1, which is a categorical variable into a factor and deleted the V-10 column.
+```{r}
+ResidentialBuildingData2$`V-1`<-as.factor(ResidentialBuildingData2$`V-1`)
+ResidentialBuildingData2$'V-9' <- NULL
+str(ResidentialBuildingData2)
+```
+
+```{r}
+Ind2<-sample(2,nrow(ResidentialBuildingData2 ),replace= TRUE, prob = c(0.75,0.25))
+Train2<-ResidentialBuildingData2[Ind2==1, ]
+Test2<-ResidentialBuildingData2[Ind2==2, ]
+str(Train2)
+```
+
+
+
+
+```{r}
+model_2<-step(lm(Train2$`V-10`~., data =Train2), type='backward')
+model_2
+car::vif(model_2)
+```
+
+
+```{r}
+model_3<-lm(`V-10` ~ `V-3` + `V-4` + `V-5` + `V-6` + `V-7` + `V-11` + 
+    `V-12` + `V-14` + `V-15` + `V-16` + `V-19` + `V-21` + `V-22` + 
+    `V-23` + `V-24` + `V-27` + `V-29`, data= Train2)
+car::vif(model_3)
+summary(model_3)
+```
+
+
+```{r}
+model_4<-lm(`V-10` ~ `V-3` + `V-4` + `V-5`  + `V-7` + `V-11` + 
+       `V-19` + 
+     `V-27` , data= Train2)
+car::vif(model_4)
+summary(model_4)
+```
+
+Now we check this model for gvlma
+
+```{r}
+library(gvlma)
+gvlma(model_2)
+model_2
+summary(model_2)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Qn 3(a)
+
+As there is cost involved in building the plant and it varies with sqrt of gallons.
+We would try to get as much optimal as possible.
+
+```{r}
+n3sum<-50
+mean3sum<-501000
+sd3sum<-10000
+n4win<-40
+mean4win<-480000
+sd4win<-100000
+
+```
+
+
+For Summer, the water capacity can be calculated by using the numbers.
+As the number of samples >30, we can either use t-dist or Z-dist
+
+```{r}
+ci_sum_value<-qt(0.80,df = n3sum - 1)
+ci_lb_1a <- mean3sum - (ci_sum_value*(sd3sum/sqrt(n3sum)))
+ci_ub_1a <- mean3sum + (ci_sum_value*(sd3sum/sqrt(n3sum)))
+
+sprintf("Lower bound of the confidence interval: %s" , ci_lb_1a)
+sprintf("Upper bound of the confidence interval: %s", ci_ub_1a)
+```
+
+For Winters,
+
+```{r}
+ci_win_value<-qt(0.80,df = n4win - 1)
+ci_lb_2a <- mean4win - (ci_win_value*(sd4win/sqrt(n4win)))
+ci_ub_2a <- mean4win + (ci_win_value*(sd4win/sqrt(n4win)))
+
+sprintf("Lower bound of the confidence interval: %s" , ci_lb_2a)
+sprintf("Upper bound of the confidence interval: %s", ci_ub_2a)
+```
+
+
+We notice that in winters the higher bound is less than the lower bound of summers. So, the city can stick to the capacity of higher bound of summer, i.e., 502200 galllons of water.
+
+
+1. Randomly sample a day
+2. Sample days according to that distribution
+3. Check the 80th percentile
+
+(b)
+
+
+```{r}
+ci_sum_value1<-qt(0.99,df = n3sum - 1)
+ci_lb_3a <- mean3sum - (ci_sum_value1*(sd3sum/sqrt(n3sum)))
+ci_ub_3a <- mean3sum + (ci_sum_value1*(sd3sum/sqrt(n3sum)))
+
+sprintf("Lower bound of the summer confidence interval: %s" , ci_lb_3a)
+sprintf("Upper bound of the summer confidence interval: %s", ci_ub_3a)
+
+ci_win_value2<-qt(0.99,df = n4win - 1)
+ci_lb_4a <- mean4win - (ci_win_value2*(sd4win/sqrt(n4win)))
+ci_ub_4a <- mean4win + (ci_win_value2*(sd4win/sqrt(n4win)))
+
+sprintf("Lower bound of the winter confidence interval: %s" , ci_lb_4a)
+sprintf("Upper bound of the winter confidence interval: %s", ci_ub_4a)
+
+
+p<-quantile(replicate(100000, rnorm(1,500000,10000), rnorm(1,480000,100000),0.8))
+```
+
+
+
+(c)
+
+As the town is getting water from town B for 5.sqrt(h) and it takes 3.sqrt(g) to build the plant. 
+
+```{r}
+p23<-rnorm(1,501000,sd=10000)
+p23
+Cost1<-3*sqrt(p23)
+costB<-5*sqrt(p23)
+Cost1
+costB
+```
+
+
+
+
+

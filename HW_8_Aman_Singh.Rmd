@@ -1,0 +1,450 @@
+---
+title: "Homework_Stats_8"
+output:
+  html_document:
+    df_print: paged
+    theme: united
+    toc: yes
+  html_notebook: default
+  word_document:
+    toc: yes
+  pdf_document: default
+name: Aman Singh
+---
+#Problem 1
+
+Suppose you take a random sample of the waiting times for 13 patients at an emergency room
+before first being seen by a doctor. The waiting times, in minutes, are 13.2, 19, 2, 3, 7.4, 32.1, 8,
+1, 3.4, 7.4, 8.9, 30.2, an 17.2.
+a. Suppose you know that the population waiting times is normally distributed. Build a 85%
+confidence interval for the mean waiting time.
+b. Suppose you know that the population standard deviation is 10 minutes. Build a 85% confidence interval for the mean waiting time.
+c. Suppose you don’t know that the population waiting time is normally distributed. Build a
+85% confidence interval for the mean waiting time.
+d. Suppose you know that the population waiting time is exponentially distributed. Build a 85%
+confidence interval for the mean waiting time.
+
+## Problem 1a
+We compute the standard error and the corresponding quantiles from the t-Student distribution 
+
+```{r}
+wating_times<-c(13.2, 19, 2, 3, 7.4, 32.1, 8, 1, 3.4, 7.4, 8.9, 30.2, 17.2)
+average_1<-mean(wating_times)
+n_1<-length(wating_times)
+sd_1<-sd(wating_times)/sqrt(n_1)
+error_1<-sd_1*qt(0.925,df=n_1-1)
+LB_1<-average_1-error_1
+UB_1<-average_1+error_1
+sd_1
+LB_1
+UB_1
+```
+
+
+## Problem 1b
+
+```{r}
+error_2<-qnorm(0.925)*10/sqrt(n_1)
+LB_2<-average_1-error_2
+UB_2<-average_1+error_2
+LB_2
+UB_2
+```
+
+
+## Problem 1c
+
+If n is small and we do not assume that the population is normal, we use bootstrapping
+
+
+```{r}
+sampling_dist <- replicate(1000,mean(sample(wating_times,size=length(wating_times),replace=TRUE)))
+hist(sampling_dist)
+diff <- sampling_dist - average_1
+diff_7.5 = quantile(diff,prob=0.0725)
+diff_92.5 = quantile(diff,prob=0.925)
+average_1+diff_7.5
+average_1+diff_92.5
+```
+
+
+```{r}
+ci_1c <- c()
+
+for (i in 1:1000){
+  ci_1c <- c(ci_1c, mean(sample(wating_times,13,replace=T)))
+}
+quantile(ci_1c, 0.075)
+quantile(ci_1c, 0.9275)
+```
+
+
+Or,
+
+we can also use the sampling_dist quantiles to approximate the CI.
+CI: [LB,UB]
+LB 10th percentile
+UB 95 percentile
+
+```{r}
+LB <- quantile(sampling_dist,0.0725)
+LB
+UB <- quantile(sampling_dist,0.9250)
+UB
+print(CI_c<-UB-LB)
+```
+
+## Problem 1d
+
+The question talks about exponential distribution and as such we are going to find 7.25th percentile and 92.5th percentile and then take the difference to find the CI.
+```{r}
+error_4<-qexp(0.925)*sd_1
+LB_4<-average_1-error_4
+UB_4<-average_1+error_4
+LB_4
+UB_4
+print(CI_d<-UB_4-LB_4)
+```
+
+
+#Problem_2
+
+Suppose you take a random sample of 260 manufactured power drills.
+a. Suppose 253 of the sampled power drills work. Build a 95% confidence interval for the
+proportion of power drills that don’t work.
+b. Suppose 200 of the sampled power drills work. Build a 95% confidence interval for the
+proportion of power drills that don’t work.
+
+
+##Problem_2a
+As n>30 we can safely approximate it as normal distribution 
+Proportion that doesn't work= 7/260
+```{r}
+SEP<-sqrt(7/260*(253/260)/260)
+UpperBound_a<-qnorm(0.95,mean=7/260,sd=SEP)
+LowerBound_a<-qnorm(0.05,mean=7/260,sd=SEP)
+UpperBound_a
+LowerBound_a
+
+```
+
+
+
+##Problem_2b
+np>= 5 & n(1-p)>= 5
+We can apply the following interval, p+/- 1.96*sqrt(p(1-p)/n)
+
+Proportion that doesn't work= 60/260
+```{r}
+SEP_b<-sqrt(60/260*(200/260)/260)
+UpperBound_b<-qnorm(0.95,mean=60/260,sd=SEP_b)
+LowerBound_b<-qnorm(0.05,mean=60/260,sd=SEP_b)
+UpperBound
+LowerBound
+```
+
+
+
+#Problem_3
+
+A hardware store is considering restructuring their shelving and the proposed plan will only have
+space for 162 propane tanks to be on display each day. Assume that the hardware store does not
+have worker capacity to restock shelves during a day, but will always restock up to the capacity for
+the start of the business day. In a random sample of 32 days, the mean number of tanks sold is 150.8
+and the standard deviation is 50.3. The company drafting the plans claims that the hardware store
+has enough shelving to satisfy all daily demand for propane tanks. We will conduct a statistical
+test to evaluate this claim.
+a. Formulate the null hypothesis (in words) to evaluate this claim.
+b. Formulate the alternative hypothesis (in words) to evaluate this claim.
+c. What is µ0 in the statistical test?
+d. What is the population parameter that the statistical test is concerned with?
+e. Which sample statistic can be used to estimate the population parameter that the statistical
+tests is testing?
+f. Is using the parametric tests discussed in class applicable? Explain why or why not.
+g. What values of ¯ x would lead you to reject the null hypothesis at a confidence level of 90%?
+Calculate this based on the t-test and z-test.
+h. What values of ¯ x would lead you to reject the null hypothesis at a confidence level of 95%?
+Calculate this based on the t-test and z-test.
+i. What values of ¯ x would lead you to reject the null hypothesis at a confidence level of 99%?
+Calculate this based on the t-test and z-test.
+j. Suppose we transform ¯ x into the test statistic T = x¯s=−pµn0 . What values of T would lead you
+to reject the null hypothesis at a confidence level of 90%? Calculate this based on the t-test
+and z-test.
+k. Suppose we transform ¯ x into the test statistic T = x¯s=−pµn0 . What values of T would lead you
+to reject the null hypothesis at a confidence level of 95%? Calculate this based on the t-test
+and z-test.
+l. Suppose we transform ¯ x into the test statistic T = x¯s=−pµn0 . What values of T would lead you
+to reject the null hypothesis at a confidence level of 99%? Calculate this based on the t-test
+and z-test.
+m. What is the p-value of this test? Calculate it based on ¯ x and also based on the transformed
+statistic, using both the t and normal distributions.
+n. What is the minimum confidence level for which you would reject the null hypothesis? Answer
+this using the p-values for both the t and normal distribution.
+o.Compare the solution you arrived at for the previous part with the rejection region defined in
+the early subsections. Explain, in detail, how you can use either the p-value or the definition
+of rejection regions to conduct this hypothesis test at a given confidence level.
+
+##Problem_3.a
+
+The null hypothesis, H0, always refers to a specified value of the population parameter
+(such as µ), not a sample statistic(x_bar)
+the null hypothesis (in words) to evaluate this claim:
+the hardware store doesn't have enough shelving to satisfy all daily demand for propane tanks.
+
+Ho: µ>= 162
+
+##Problem_3.b
+
+The alternative hypothesis represents the conclusion reached by rejecting the null hypothesis. The null hypothesis is rejected when there is sufficient evidence from the sample data that the null hypothesis is false.
+
+the alternative hypothesis (in words) to evaluate this claim:
+the hardware store has enough shelving to satisfy all daily demand for propane tanks
+
+H1: µ<162
+##Problem_3.c
+
+µ0 in the statistical test is the constant and equal to the proposed shelve capacity of displaying 162 propane tanks.
+
+##Problem_3.d
+
+
+µ in the statistical test is the population parameter and equal to the mean demand for propane.
+
+##Problem_3.e
+
+The mean demand of 150.8 found from sampling can be used as sample statistic to estimate the population parameter that the statistical tests is testing.
+
+##Problem_3.f
+
+Yes!
+For 𝜎 unknown,we use t as the test statistic, with 𝜎 replaced by 𝑆 (the sample standard deviation), and use the 𝑡 distribution (the 𝑞𝑡 function) for calculating the critical values with degrees of freedom 𝑑𝑓=𝑛−1.
+
+As 𝑛>30,we can use 𝑧 and plug in 𝑆 for 𝜎
+
+##Problem_3.g
+
+
+P(T <= Critical Value) = 0.90
+We get Critical Value = qt(0.90,df=31) = -1.3094
+
+
+
+P(Z <= Critical Value) = 0.90
+We get Critical Value = qnorm(0.90) = -1.2815
+
+For rejection, Tstat < Tc & Zstat < Zc
+
+X_bar_tstat < 150.3564 & x_bar_zstat< 150.6046 for rejection
+```{r}
+Zo<-qnorm(0.90)
+to<-qt(0.90,df=31)
+Zo
+to
+sd_g<-50.3
+X_bar_gt<-162-sd_g*to/sqrt(32)
+X_bar_gz<-162-sd_g*Zo/sqrt(32)
+X_bar_gt
+X_bar_gz
+
+```
+
+
+
+##Problem_3.h
+
+P(T <= Critical Value) = 0.95
+We get Critical Value = qt(0.95,df=31) = -1.833
+
+P(Z <= Critical Value) = 0.95
+We get Critical Value = qnorm(0.95) = -1.64485
+
+X_bar_tstat < 146.9237 & x_bar_zstat< 147.3742 for rejection
+```{r}
+Zo_h<-qnorm(0.95)
+to_h<-qt(0.95,df=31)
+Zo_h
+to_h
+sd_g<-50.3
+X_bar_ht<-162-sd_g*to_h/sqrt(32)
+X_bar_hz<-162-sd_g*Zo_h/sqrt(32)
+X_bar_ht
+X_bar_hz
+```
+
+
+##Problem_3.i
+
+P(T <= Critical Value) = 0.99
+We get Critical Value = qt(0.99,df=31) = -2.4528
+
+P(Z <= Critical Value) = 0.99
+We get Critical Value = qnorm(0.99) =- 2.3263
+
+X_bar_tstat < 140.1898 & x_bar_zstat< 141.3144 for rejection
+
+or
+
+
+
+```{r}
+Zo_i<-qnorm(0.99)
+to_i<-qt(0.99,df=31)
+Zo_i
+to_i
+sd_g<-50.3
+X_bar_it<-162-sd_g*to_i/sqrt(32)
+X_bar_iz<-162-sd_g*Zo_i/sqrt(32)
+X_bar_it
+X_bar_iz
+```
+
+##Problem_3.j
+
+P(T <= Critical Value) = 0.90
+We get Critical Value = qt(0.90,df=31) = -1.3094
+
+
+
+P(Z <= Critical Value) = 0.90
+We get Critical Value = qnorm(0.90) =-1.2815
+
+For rejection, Tstat < Tc & Zstat < Zc
+
+which means any value of T <- 1.3094 would result in rejection of null hypothesis.
+
+##Problem_3.k
+
+P(T <= Critical Value) = 0.95
+We get Critical Value = -qt(0.95,df=31) = -1.833
+
+P(Z <= Critical Value) = 0.95
+We get Critical Value = -qnorm(0.95) = -1.64485
+
+For rejection, Tstat < Tc & Zstat < Zc
+
+which means any value of T <- 1.833 would result in rejection of null hypothesis.
+
+
+##Problem_3.l
+
+P(T <= Critical Value) = 0.99
+We get Critical Value = qt(0.99,df=31) = -2.4528
+
+P(Z <= Critical Value) = 0.99
+We get Critical Value = qnorm(0.99) =-2.3263
+
+For rejection, Tstat < Tc & Zstat < Zc
+
+which means any value of T <- 2.4528 would result in rejection of null hypothesis.
+
+##Problem_3.m
+
+A p-value (observed significance level) is the probability of obtaining a test statistic value equal to or more extreme than that obtained from the sample data when the null hypothesis is true.
+An alternative approach to the acceptance region approach
+Reject H0 if the p-value < 𝛼
+For a lower one-tailed test, the p-value is the probability to the left of the test statistic t in the t-distribution or standard normal distribution, and is found using the R commands:
+pt(t,df=n-1) or pnorm(t) as it is a lower-t tailed test.
+
+```{r}
+x_barm<-150.8
+tstat<-(x_barm-162)/(sd_g/sqrt(32))
+tstat
+p_value_t<-pt(tstat,df=31)
+p_value_n<-pnorm(tstat)
+p_value_t
+p_value_n
+
+```
+
+
+##Problem_3.n
+ the minimum confidence level for which you would reject the null hypothesis
+ Reject H0 if the p-value < 𝛼
+Currently, by tstat p-value =0.1086114 .
+Thus, confidence level =1-significance level< (1-0.1086114)
+ or,
+ For two-tailed test,
+ 10.86% <confidence level < 89.14% will cause rejection
+The minimum is going to be 10.86% confidence level
+
+by n-distribution, p-value =0.1039108
+
+For two-tailed test,
+ 10.39% <confidence level < 89.61% will cause rejection
+The minimum is going to be 10.39% confidence level
+
+When we take out the t-test and normal test
+```{r}
+p_rej<--qt(0.8914,df=31)
+p_rej
+p_rej2<--qnorm(0.8961)
+p_rej2
+```
+
+##Problem_3.o
+
+The p-value is the probability of getting a test statistic equal to or more extreme than the
+sample result, given that the null hypothesis, H0, is true. The p-value is also known as the
+observed level of significance. Using the p-value to determine rejection and nonrejection is
+another approach to hypothesis testing.
+The decision rules for rejecting H0 in the p-value approach are
+•	 If the p-value is greater than or equal to a, do not reject the null hypothesis.
+•	 If the p-value is less than a, reject the null hypothesis.
+
+For, 90th confidence level: alpha=0.10, p-value>alpha, thus, don't reject the null hypothesis.
+For, 95th confidence level: alpha=0.05, p-value>alpha, thus, don't reject the null hypothesis.
+For, 99th confidence level: alpha=0.01, p-value>alpha, thus, don't reject the null hypothesis.
+
+
+We notice that T-stat value is 1.259642 > T-critical for 89% confidence level.
+Then, we check the 90th, 95th and 99th percentile confidence level and we get that :
+T-Stat >- 1.34>- 1.833 >- 2.4528
+Thus, we get that anything beyond the 89.14% confidence level would not be a rejection region. 
+
+Similarly, we notice that Z-stat value is -1.259638 > Z-critical for 89% confidence interval
+
+Then, we check the 90th,95th and 99th percentile confidence level and we get that:
+Z-stat >- 1.35>- 1.64485 >- 2.3263
+Thus, we get that anything beyond the 89.61% confidence level would not be rejection region.
+
+#Problem_4
+
+You have been asked to create a confidence interval for the amount by which properties in a
+particular region are listed above their assessed values. From previous experience, you know that
+the standard deviation of the difference is between $5,700 and $20,000, and that the distribution
+is approximately normal.
+a. Suppose you take a random sample of 30 properties. Given the range of possible values for
+the standard deviation, what is the maximum width of a 90% confidence interval?
+b. A company is willing to pay you for a 90% confidence interval, but the amount that they are
+wiling to pay you depends on how wide the confidence interval is. The company is willing to
+pay you $20,000 plus the margin of error times $100. Each assessment costs $1,950. Given
+the range of possible values for the standard deviation, how many houses should you have
+assessed?
+
+##Problem_4a
+
+For maximum width the sd should be largest.
+
+
+```{r}
+n_4<-30
+sd_4_low<-5700
+sd_4_high<-20000
+z1<-qnorm(0.950)
+z2<-qnorm(0.050)
+diff_1<-sqrt((z1^2)*(sd_4_high^2)/n_4)
+width_max<-z1*sd_4_high/sqrt(n_4)-z2*sd_4_high/sqrt(n_4)
+width_max
+```
+
+
+##Problem_4b
+Twice the Margin of error= Width Max
+Thus, Margin of error= 0.5*width Max= Zstat*sd/sqrt(n)
+
+```{r}
+Money_1<-(20000+z1*sd_4_high/sqrt(n_4)*100)
+Houses_1<-Money_1/1950
+round(Houses_1,0)
+```
+
